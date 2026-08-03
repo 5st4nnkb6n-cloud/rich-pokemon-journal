@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#28195f">
+<title>RichDex V5.1 — Trainer Edition</title>
+<style>
+:root{--ink:#17213b;--paper:#f5f6fb;--violet:#5b35c9;--gold:#ffd84d;--green:#22c55e;--shadow:0 12px 32px rgba(30,38,85,.15)}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:linear-gradient(#edf0ff,#faf9ff 35%,#f5f7fb);color:var(--ink)}
+button,input,select{font:inherit}
+.hero{padding:34px 18px;background:linear-gradient(135deg,#162b7c,#6d3dc9 55%,#df52b5);color:#fff;text-align:center}
+.logo{display:inline-flex;align-items:center;gap:10px;background:#ffffff1f;border:1px solid #ffffff55;border-radius:999px;padding:9px 14px;font-weight:900}
+.ball{width:34px;height:34px;border-radius:50%;background:linear-gradient(#ef4444 0 46%,#172554 46% 56%,white 56%);border:3px solid white}
+h1{font-size:clamp(2rem,7vw,4rem);line-height:1;margin:16px 0 8px}
+.version{display:inline-block;background:var(--gold);color:#3b2d00;padding:7px 12px;border-radius:999px;font-weight:900}
+nav{position:sticky;top:0;z-index:10;display:flex;background:#fff;box-shadow:0 4px 18px #0001}
+nav button{flex:1;border:0;background:#fff;padding:16px 8px;font-weight:900;color:#667085}
+nav button.active{color:var(--violet);border-bottom:4px solid var(--violet)}
+main{max-width:1180px;margin:auto;padding:18px}
+.view{display:none}.view.active{display:block}
+.panel,.set-card,.card,.badge-card{background:#fff;border-radius:22px;box-shadow:var(--shadow)}
+.panel{padding:22px;margin-bottom:18px}
+.set-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.set-card{padding:20px;border:3px solid transparent;text-align:left}
+.set-card.selected{border-color:var(--violet)}
+.set-card h3{margin:.4rem 0} .set-card small{color:#667085;font-weight:800}
+.set-progress{height:12px;background:#e7e8ef;border-radius:999px;overflow:hidden;margin:12px 0 8px}
+.set-progress div{height:100%;background:linear-gradient(90deg,#22c55e,#ffd84d)}
+.badge{display:inline-flex;align-items:center;gap:7px;padding:7px 10px;border-radius:999px;background:#eef0f6;font-size:.78rem;font-weight:900}
+.badge.unlocked{background:#fff3b0;color:#6b4d00}
+.toolbar{display:grid;grid-template-columns:2fr 1fr;gap:10px;margin-bottom:16px}
+.toolbar input,.toolbar select{padding:14px;border:1px solid #d9deea;border-radius:14px;background:#fff}
+.card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}
+.card{padding:18px;border:3px solid transparent}
+.card.mastered{border-color:#eab308;background:linear-gradient(180deg,#fff,#fffbeb)}
+.card h3{margin:.4rem 0} .top{display:flex;justify-content:space-between;gap:10px} .num{font-weight:900;color:#667085}
+.type{display:inline-block;padding:7px 10px;border-radius:999px;background:#e8ecf7;font-weight:900;font-size:.78rem}
+.finish-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:14px}
+.finish{padding:13px 8px;border:2px solid #e4e7ec;border-radius:14px;background:#fff;font-weight:900;touch-action:manipulation}
+.finish.have{background:#dcfce7;border-color:#22c55e;color:#166534}
+.favorite{margin-top:9px;width:100%;padding:12px;border:0;border-radius:14px;background:#fff7cc;color:#92400e;font-weight:900}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.stat{background:#fff;border-radius:18px;padding:16px;text-align:center;box-shadow:var(--shadow)}
+.stat b{display:block;font-size:1.6rem} .stat span{font-size:.8rem;font-weight:800;color:#667085}
+.badge-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px}
+.badge-card{padding:20px;text-align:center;opacity:.55}
+.badge-card.unlocked{opacity:1;background:linear-gradient(180deg,#fff,#fff8d6);border:3px solid #facc15}
+.trophy{font-size:3rem}
+.empty{padding:28px;text-align:center;background:#fff;border-radius:22px;box-shadow:var(--shadow)}
+@media(max-width:720px){.toolbar{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}.card-grid{grid-template-columns:1fr}}
+
+.setup-overlay{position:fixed;inset:0;z-index:100;background:linear-gradient(135deg,#162b7cee,#6d3dc9ee 55%,#df52b5ee);display:flex;align-items:center;justify-content:center;padding:18px}
+.setup-box{width:min(560px,100%);background:#fff;border-radius:28px;padding:26px;box-shadow:0 30px 80px #0005}.setup-box h2{margin-top:0}.hidden{display:none!important}
+.field{display:block;font-weight:900;margin:14px 0}.field input,.field select{display:block;width:100%;margin-top:7px;padding:14px;border:1px solid #d0d5dd;border-radius:14px;background:#fff}
+.primary{width:100%;padding:15px;border:0;border-radius:15px;background:linear-gradient(90deg,#2d64df,#5b35c9);color:#fff;font-weight:900}
+.home-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:16px}.trainer-card{padding:24px;background:linear-gradient(135deg,#1f2a78,#6f3dc8 58%,#db4caf);color:#fff;border-radius:22px;box-shadow:var(--shadow)}
+.trainer-label{letter-spacing:.16em;font-size:.78rem;font-weight:900;opacity:.85}.trainer-name{font-size:2rem;font-weight:900;margin:6px 0}
+.profile-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}.profile-stat{background:#ffffff18;border:1px solid #ffffff35;border-radius:16px;padding:13px}
+.profile-stat b{display:block;font-size:1.35rem}.profile-stat span{font-size:.78rem;font-weight:800;opacity:.9}
+.menu-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.menu-card{padding:18px;border:0;text-align:left;background:#fff;border-radius:22px;box-shadow:var(--shadow)}
+.menu-card strong{display:block;font-size:1.1rem}.menu-card span{color:#667085;font-size:.84rem;font-weight:700}.setting-card{padding:20px;background:#fff;border-radius:22px;box-shadow:var(--shadow)}
+@media(max-width:760px){.home-grid{grid-template-columns:1fr}.menu-grid{grid-template-columns:1fr 1fr}}
+
+</style>
+</head>
+<body>
+
+<div id="setupOverlay" class="setup-overlay hidden">
+  <div class="setup-box">
+    <div class="logo" style="background:#5b35c9;color:white;border:0"><div class="ball"></div> RICHDEX</div>
+    <h2>Create Your Trainer</h2>
+    <p>Your profile saves on this device.</p>
+    <label class="field">Username<input id="setupUsername" maxlength="24" placeholder="Trainer name"></label>
+    <label class="field">Favorite Pokémon<input id="setupPokemon" maxlength="30" placeholder="Example: Umbreon"></label>
+    <label class="field">Favorite Type<select id="setupType"><option>Grass</option><option>Fire</option><option>Water</option><option>Lightning</option><option>Psychic</option><option>Fighting</option><option>Darkness</option><option>Metal</option><option>Dragon</option><option>Colorless</option></select></label>
+    <button id="createTrainer" class="primary">Start My Journey</button>
+  </div>
+</div>
+
+<header class="hero">
+<div class="logo"><div class="ball"></div> RICHDEX</div>
+<h1>Trainer Edition</h1>
+<p>Your collection. Your value. Your journey.</p>
+<span class="version">VERSION 5.1</span>
+</header>
+
+<nav>
+<button class="tab active" data-view="home">Home</button>
+<button class="tab" data-view="series">Sets</button>
+<button class="tab" data-view="collection">Collect</button>
+<button class="tab" data-view="badges">Badges</button>
+<button class="tab" data-view="settings">Settings</button>
+</nav>
+
+<main>
+
+<section id="home" class="view active">
+<div class="home-grid">
+  <article class="trainer-card">
+    <div class="trainer-label">TRAINER CARD</div>
+    <div class="trainer-name" id="trainerName">Trainer</div>
+    <div id="trainerFavorite">Favorite Pokémon: —</div>
+    <div id="trainerType">Favorite Type: —</div>
+    <div class="profile-row">
+      <div class="profile-stat"><b id="profileCards">0</b><span>Cards Started</span></div>
+      <div class="profile-stat"><b id="profileBadges">0</b><span>Badges</span></div>
+      <div class="profile-stat"><b id="profileLevel">1</b><span>Collector Level</span></div>
+      <div class="profile-stat"><b id="profileJoined">August 2026</b><span>Joined</span></div>
+    </div>
+  </article>
+  <div class="menu-grid">
+    <button class="menu-card" data-go="series"><strong>📚 Browse Sets</strong><span>Choose a series and explore its cards.</span></button>
+    <button class="menu-card" data-go="collection"><strong>🎴 My Collection</strong><span>Track Regular and holo finishes.</span></button>
+    <button class="menu-card" data-go="badges"><strong>🏆 Trophy Room</strong><span>See completed-series badges.</span></button>
+    <button class="menu-card" data-go="settings"><strong>⚙️ Trainer Settings</strong><span>Change username and favorites.</span></button>
+  </div>
+</div>
+</section>
+
+<section id="series" class="view">
+<div class="panel"><h2>Choose Your Series</h2><p>Select a set to begin collecting. Your progress saves automatically.</p></div>
+<div id="setGrid" class="set-grid"></div>
+</section>
+
+<section id="collection" class="view">
+<div class="panel">
+<h2 id="collectionTitle">Select a Series</h2>
+<div class="stats">
+<div class="stat"><b id="cardsStarted">0</b><span>Cards Started</span></div>
+<div class="stat"><b id="finishesOwned">0</b><span>Finishes Owned</span></div>
+<div class="stat"><b id="seriesPercent">0%</b><span>Series Complete</span></div>
+<div class="stat"><b id="masteredCount">0</b><span>Cards Mastered</span></div>
+</div>
+</div>
+<div class="toolbar">
+<input id="search" type="search" placeholder="Search card or number">
+<select id="statusFilter">
+<option value="all">All Cards</option>
+<option value="started">Started</option>
+<option value="needed">Nothing Owned</option>
+<option value="mastered">Mastered</option>
+</select>
+</div>
+<div id="cardGrid" class="card-grid"></div>
+</section>
+
+<section id="badges" class="view">
+<div class="panel"><h2>Your Series Badges</h2><p>Complete every card finish in a series to unlock its badge.</p></div>
+<div id="badgeGrid" class="badge-grid"></div>
+</section>
+
+<section id="settings" class="view">
+<div class="panel"><h2>Trainer Settings</h2><p>Update your profile. Changes save on this device.</p></div>
+<div class="setting-card">
+  <label class="field">Username<input id="settingsUsername" maxlength="24"></label>
+  <label class="field">Favorite Pokémon<input id="settingsPokemon" maxlength="30"></label>
+  <label class="field">Favorite Type<select id="settingsType"><option>Grass</option><option>Fire</option><option>Water</option><option>Lightning</option><option>Psychic</option><option>Fighting</option><option>Darkness</option><option>Metal</option><option>Dragon</option><option>Colorless</option></select></label>
+  <button id="saveSettings" class="primary">Save Trainer Profile</button>
+</div>
+</section>
+
+</main>
+
+<script>
+const sets = [{"id": "prismatic-evolutions", "name": "Prismatic Evolutions", "era": "Scarlet & Violet", "accent": "#7c3aed", "cards": [{"id": 1, "number": "001/131", "name": "Exeggcute", "type": "Grass", "section": "Main Set"}, {"id": 2, "number": "002/131", "name": "Exeggutor", "type": "Grass", "section": "Main Set"}, {"id": 3, "number": "003/131", "name": "Pinsir", "type": "Grass", "section": "Main Set"}, {"id": 4, "number": "004/131", "name": "Budew", "type": "Grass", "section": "Main Set"}, {"id": 5, "number": "005/131", "name": "Leafeon", "type": "Grass", "section": "Main Set"}, {"id": 6, "number": "006/131", "name": "Leafeon ex", "type": "Grass", "section": "Main Set"}, {"id": 7, "number": "007/131", "name": "Cottonee", "type": "Grass", "section": "Main Set"}, {"id": 8, "number": "008/131", "name": "Whimsicott", "type": "Grass", "section": "Main Set"}, {"id": 9, "number": "009/131", "name": "Applin", "type": "Grass", "section": "Main Set"}, {"id": 10, "number": "010/131", "name": "Dipplin", "type": "Grass", "section": "Main Set"}, {"id": 11, "number": "011/131", "name": "Hydrapple ex", "type": "Grass", "section": "Main Set"}, {"id": 12, "number": "012/131", "name": "Teal Mask Ogerpon ex", "type": "Grass", "section": "Main Set"}, {"id": 13, "number": "013/131", "name": "Flareon", "type": "Fire", "section": "Main Set"}, {"id": 14, "number": "014/131", "name": "Flareon ex", "type": "Fire", "section": "Main Set"}, {"id": 15, "number": "015/131", "name": "Litleo", "type": "Fire", "section": "Main Set"}, {"id": 16, "number": "016/131", "name": "Pyroar", "type": "Fire", "section": "Main Set"}, {"id": 17, "number": "017/131", "name": "Hearthflame Mask Ogerpon ex", "type": "Grass", "section": "Main Set"}, {"id": 18, "number": "018/131", "name": "Slowpoke", "type": "Water", "section": "Main Set"}, {"id": 19, "number": "019/131", "name": "Slowking", "type": "Water", "section": "Main Set"}, {"id": 20, "number": "020/131", "name": "Goldeen", "type": "Water", "section": "Main Set"}, {"id": 21, "number": "021/131", "name": "Seaking", "type": "Water", "section": "Main Set"}, {"id": 22, "number": "022/131", "name": "Vaporeon", "type": "Water", "section": "Main Set"}, {"id": 23, "number": "023/131", "name": "Vaporeon ex", "type": "Water", "section": "Main Set"}, {"id": 24, "number": "024/131", "name": "Suicune", "type": "Water", "section": "Main Set"}, {"id": 25, "number": "025/131", "name": "Glaceon", "type": "Water", "section": "Main Set"}, {"id": 26, "number": "026/131", "name": "Glaceon ex", "type": "Water", "section": "Main Set"}, {"id": 27, "number": "027/131", "name": "Wellspring Mask Ogerpon ex", "type": "Grass", "section": "Main Set"}, {"id": 28, "number": "028/131", "name": "Pikachu ex", "type": "Lightning", "section": "Main Set"}, {"id": 29, "number": "029/131", "name": "Jolteon", "type": "Lightning", "section": "Main Set"}, {"id": 30, "number": "030/131", "name": "Jolteon ex", "type": "Lightning", "section": "Main Set"}, {"id": 31, "number": "031/131", "name": "Iron Hands ex", "type": "Lightning", "section": "Main Set"}, {"id": 32, "number": "032/131", "name": "Iron Thorns ex", "type": "Lightning", "section": "Main Set"}, {"id": 33, "number": "033/131", "name": "Espeon", "type": "Psychic", "section": "Main Set"}, {"id": 34, "number": "034/131", "name": "Espeon ex", "type": "Psychic", "section": "Main Set"}, {"id": 35, "number": "035/131", "name": "Duskull", "type": "Psychic", "section": "Main Set"}, {"id": 36, "number": "036/131", "name": "Dusclops", "type": "Colorless", "section": "Main Set"}, {"id": 37, "number": "037/131", "name": "Dusknoir", "type": "Psychic", "section": "Main Set"}, {"id": 38, "number": "038/131", "name": "Spritzee", "type": "Psychic", "section": "Main Set"}, {"id": 39, "number": "039/131", "name": "Aromatisse", "type": "Psychic", "section": "Main Set"}, {"id": 40, "number": "040/131", "name": "Sylveon", "type": "Psychic", "section": "Main Set"}, {"id": 41, "number": "041/131", "name": "Sylveon ex", "type": "Psychic", "section": "Main Set"}, {"id": 42, "number": "042/131", "name": "Scream Tail", "type": "Psychic", "section": "Main Set"}, {"id": 43, "number": "043/131", "name": "Flutter Mane", "type": "Psychic", "section": "Main Set"}, {"id": 44, "number": "044/131", "name": "Munkidori", "type": "Psychic", "section": "Main Set"}, {"id": 45, "number": "045/131", "name": "Fezandipiti", "type": "Psychic", "section": "Main Set"}, {"id": 46, "number": "046/131", "name": "Iron Boulder", "type": "Colorless", "section": "Main Set"}, {"id": 47, "number": "047/131", "name": "Larvitar", "type": "Colorless", "section": "Main Set"}, {"id": 48, "number": "048/131", "name": "Pupitar", "type": "Colorless", "section": "Main Set"}, {"id": 49, "number": "049/131", "name": "Groudon", "type": "Colorless", "section": "Main Set"}, {"id": 50, "number": "050/131", "name": "Riolu", "type": "Colorless", "section": "Main Set"}, {"id": 51, "number": "051/131", "name": "Lucario ex", "type": "Colorless", "section": "Main Set"}, {"id": 52, "number": "052/131", "name": "Hippopotas", "type": "Colorless", "section": "Main Set"}, {"id": 53, "number": "053/131", "name": "Hippowdon", "type": "Colorless", "section": "Main Set"}, {"id": 54, "number": "054/131", "name": "Bloodmoon Ursaluna", "type": "Colorless", "section": "Main Set"}, {"id": 55, "number": "055/131", "name": "Great Tusk", "type": "Colorless", "section": "Main Set"}, {"id": 56, "number": "056/131", "name": "Sandy Shocks ex", "type": "Colorless", "section": "Main Set"}, {"id": 57, "number": "057/131", "name": "Okidogi", "type": "Darkness", "section": "Main Set"}, {"id": 58, "number": "058/131", "name": "Cornerstone Mask Ogerpon ex", "type": "Grass", "section": "Main Set"}, {"id": 59, "number": "059/131", "name": "Umbreon", "type": "Darkness", "section": "Main Set"}, {"id": 60, "number": "060/131", "name": "Umbreon ex", "type": "Darkness", "section": "Main Set"}, {"id": 61, "number": "061/131", "name": "Sneasel", "type": "Darkness", "section": "Main Set"}, {"id": 62, "number": "062/131", "name": "Houndour", "type": "Darkness", "section": "Main Set"}, {"id": 63, "number": "063/131", "name": "Houndoom", "type": "Darkness", "section": "Main Set"}, {"id": 64, "number": "064/131", "name": "Tyranitar ex", "type": "Darkness", "section": "Main Set"}, {"id": 65, "number": "065/131", "name": "Roaring Moon", "type": "Darkness", "section": "Main Set"}, {"id": 66, "number": "066/131", "name": "Bronzor", "type": "Metal", "section": "Main Set"}, {"id": 67, "number": "067/131", "name": "Bronzong", "type": "Metal", "section": "Main Set"}, {"id": 68, "number": "068/131", "name": "Heatran", "type": "Fire", "section": "Main Set"}, {"id": 69, "number": "069/131", "name": "Duraludon", "type": "Metal", "section": "Main Set"}, {"id": 70, "number": "070/131", "name": "Archaludon", "type": "Metal", "section": "Main Set"}, {"id": 71, "number": "071/131", "name": "Dreepy", "type": "Dragon", "section": "Main Set"}, {"id": 72, "number": "072/131", "name": "Drakloak", "type": "Dragon", "section": "Main Set"}, {"id": 73, "number": "073/131", "name": "Dragapult ex", "type": "Dragon", "section": "Main Set"}, {"id": 74, "number": "074/131", "name": "Eevee", "type": "Colorless", "section": "Main Set"}, {"id": 75, "number": "075/131", "name": "Eevee ex", "type": "Colorless", "section": "Main Set"}, {"id": 76, "number": "076/131", "name": "Snorlax ex", "type": "Colorless", "section": "Main Set"}, {"id": 77, "number": "077/131", "name": "Hoothoot", "type": "Colorless", "section": "Main Set"}, {"id": 78, "number": "078/131", "name": "Noctowl", "type": "Colorless", "section": "Main Set"}, {"id": 79, "number": "079/131", "name": "Dunsparce", "type": "Colorless", "section": "Main Set"}, {"id": 80, "number": "080/131", "name": "Dudunsparce", "type": "Colorless", "section": "Main Set"}, {"id": 81, "number": "081/131", "name": "Miltank", "type": "Colorless", "section": "Main Set"}, {"id": 82, "number": "082/131", "name": "Lugia ex", "type": "Colorless", "section": "Main Set"}, {"id": 83, "number": "083/131", "name": "Buneary", "type": "Colorless", "section": "Main Set"}, {"id": 84, "number": "084/131", "name": "Lopunny", "type": "Colorless", "section": "Main Set"}, {"id": 85, "number": "085/131", "name": "Fan Rotom", "type": "Colorless", "section": "Main Set"}, {"id": 86, "number": "086/131", "name": "Regigigas", "type": "Colorless", "section": "Main Set"}, {"id": 87, "number": "087/131", "name": "Shaymin", "type": "Colorless", "section": "Main Set"}, {"id": 88, "number": "088/131", "name": "Furfrou", "type": "Colorless", "section": "Main Set"}, {"id": 89, "number": "089/131", "name": "Hawlucha", "type": "Colorless", "section": "Main Set"}, {"id": 90, "number": "090/131", "name": "Noibat", "type": "Dragon", "section": "Main Set"}, {"id": 91, "number": "091/131", "name": "Noivern ex", "type": "Dragon", "section": "Main Set"}, {"id": 92, "number": "092/131", "name": "Terapagos ex", "type": "Colorless", "section": "Main Set"}, {"id": 93, "number": "093/131", "name": "Amarys", "type": "Colorless", "section": "Main Set"}, {"id": 94, "number": "094/131", "name": "Area Zero Underdepths", "type": "Colorless", "section": "Main Set"}, {"id": 95, "number": "095/131", "name": "Binding Mochi", "type": "Colorless", "section": "Main Set"}, {"id": 96, "number": "096/131", "name": "Black Belt's Training", "type": "Colorless", "section": "Main Set"}, {"id": 97, "number": "097/131", "name": "Black Belt's Training", "type": "Colorless", "section": "Main Set"}, {"id": 98, "number": "098/131", "name": "Black Belt's Training", "type": "Colorless", "section": "Main Set"}, {"id": 99, "number": "099/131", "name": "Black Belt's Training", "type": "Colorless", "section": "Main Set"}, {"id": 100, "number": "100/131", "name": "Briar", "type": "Colorless", "section": "Main Set"}, {"id": 101, "number": "101/131", "name": "Buddy-Buddy Poffin", "type": "Colorless", "section": "Main Set"}, {"id": 102, "number": "102/131", "name": "Bug Catching Set", "type": "Colorless", "section": "Main Set"}, {"id": 103, "number": "103/131", "name": "Carmine", "type": "Colorless", "section": "Main Set"}, {"id": 104, "number": "104/131", "name": "Ciphermaniac's Codebreaking", "type": "Colorless", "section": "Main Set"}, {"id": 105, "number": "105/131", "name": "Crispin", "type": "Colorless", "section": "Main Set"}, {"id": 106, "number": "106/131", "name": "Earthen Vessel", "type": "Colorless", "section": "Main Set"}, {"id": 107, "number": "107/131", "name": "Explorer's Guidance", "type": "Colorless", "section": "Main Set"}, {"id": 108, "number": "108/131", "name": "Festival Grounds", "type": "Colorless", "section": "Main Set"}, {"id": 109, "number": "109/131", "name": "Friends in Paldea", "type": "Colorless", "section": "Main Set"}, {"id": 110, "number": "110/131", "name": "Glass Trumpet", "type": "Colorless", "section": "Main Set"}, {"id": 111, "number": "111/131", "name": "Haban Berry", "type": "Colorless", "section": "Main Set"}, {"id": 112, "number": "112/131", "name": "Janine's Secret Art", "type": "Colorless", "section": "Main Set"}, {"id": 113, "number": "113/131", "name": "Kieran", "type": "Colorless", "section": "Main Set"}, {"id": 114, "number": "114/131", "name": "Lacey", "type": "Colorless", "section": "Main Set"}, {"id": 115, "number": "115/131", "name": "Larry's Skill", "type": "Colorless", "section": "Main Set"}, {"id": 116, "number": "116/131", "name": "Max Rod", "type": "Colorless", "section": "Main Set"}, {"id": 117, "number": "117/131", "name": "Maximum Belt", "type": "Colorless", "section": "Main Set"}, {"id": 118, "number": "118/131", "name": "Ogre's Mask", "type": "Colorless", "section": "Main Set"}, {"id": 119, "number": "119/131", "name": "Prime Catcher", "type": "Colorless", "section": "Main Set"}, {"id": 120, "number": "120/131", "name": "Professor Sada's Vitality", "type": "Colorless", "section": "Main Set"}, {"id": 121, "number": "121/131", "name": "Professor Turo's Scenario", "type": "Colorless", "section": "Main Set"}, {"id": 122, "number": "122/131", "name": "Professor's Research [Professor Oak]", "type": "Colorless", "section": "Main Set"}, {"id": 123, "number": "123/131", "name": "Professor's Research [Professor Elm]", "type": "Colorless", "section": "Main Set"}, {"id": 124, "number": "124/131", "name": "Professor's Research [Professor Rowan]", "type": "Colorless", "section": "Main Set"}, {"id": 125, "number": "125/131", "name": "Professor's Research [Professor Sycamore]", "type": "Colorless", "section": "Main Set"}, {"id": 126, "number": "126/131", "name": "Rescue Board", "type": "Colorless", "section": "Main Set"}, {"id": 127, "number": "127/131", "name": "Roto-Stick", "type": "Colorless", "section": "Main Set"}, {"id": 128, "number": "128/131", "name": "Scoop Up Cyclone", "type": "Colorless", "section": "Main Set"}, {"id": 129, "number": "129/131", "name": "Sparkling Crystal", "type": "Colorless", "section": "Main Set"}, {"id": 130, "number": "130/131", "name": "Techno Radar", "type": "Colorless", "section": "Main Set"}, {"id": 131, "number": "131/131", "name": "Treasure Tracker", "type": "Colorless", "section": "Main Set"}, {"id": 132, "number": "132/131", "name": "Amarys", "type": "Special", "section": "Secret Rare"}, {"id": 133, "number": "133/131", "name": "Atticus", "type": "Special", "section": "Secret Rare"}, {"id": 134, "number": "134/131", "name": "Atticus", "type": "Special", "section": "Secret Rare"}, {"id": 135, "number": "135/131", "name": "Brassius", "type": "Special", "section": "Secret Rare"}, {"id": 136, "number": "136/131", "name": "Eri", "type": "Special", "section": "Secret Rare"}, {"id": 137, "number": "137/131", "name": "Friends in Paldea", "type": "Special", "section": "Secret Rare"}, {"id": 138, "number": "138/131", "name": "Giacomo", "type": "Special", "section": "Secret Rare"}, {"id": 139, "number": "139/131", "name": "Larry's Skill", "type": "Special", "section": "Secret Rare"}, {"id": 140, "number": "140/131", "name": "Mela", "type": "Special", "section": "Secret Rare"}, {"id": 141, "number": "141/131", "name": "Ortega", "type": "Special", "section": "Secret Rare"}, {"id": 142, "number": "142/131", "name": "Raifort", "type": "Special", "section": "Secret Rare"}, {"id": 143, "number": "143/131", "name": "Tyme", "type": "Special", "section": "Secret Rare"}, {"id": 144, "number": "144/131", "name": "Leafeon ex", "type": "Grass", "section": "Secret Rare"}, {"id": 145, "number": "145/131", "name": "Teal Mask Ogerpon ex", "type": "Grass", "section": "Secret Rare"}, {"id": 146, "number": "146/131", "name": "Flareon ex", "type": "Fire", "section": "Secret Rare"}, {"id": 147, "number": "147/131", "name": "Ceruledge ex", "type": "Fire", "section": "Secret Rare"}, {"id": 148, "number": "148/131", "name": "Hearthflame Mask Ogerpon ex", "type": "Grass", "section": "Secret Rare"}, {"id": 149, "number": "149/131", "name": "Vaporeon ex", "type": "Water", "section": "Secret Rare"}, {"id": 150, "number": "150/131", "name": "Glaceon ex", "type": "Water", "section": "Secret Rare"}, {"id": 151, "number": "151/131", "name": "Palafin ex", "type": "Water", "section": "Secret Rare"}, {"id": 152, "number": "152/131", "name": "Wellspring Mask Ogerpon ex", "type": "Grass", "section": "Secret Rare"}, {"id": 153, "number": "153/131", "name": "Jolteon ex", "type": "Lightning", "section": "Secret Rare"}, {"id": 154, "number": "154/131", "name": "Iron Hands ex", "type": "Lightning", "section": "Secret Rare"}, {"id": 155, "number": "155/131", "name": "Espeon ex", "type": "Psychic", "section": "Secret Rare"}, {"id": 156, "number": "156/131", "name": "Sylveon ex", "type": "Psychic", "section": "Secret Rare"}, {"id": 157, "number": "157/131", "name": "Iron Valiant ex", "type": "Special", "section": "Secret Rare"}, {"id": 158, "number": "158/131", "name": "Iron Crown ex", "type": "Special", "section": "Secret Rare"}, {"id": 159, "number": "159/131", "name": "Sandy Shocks ex", "type": "Special", "section": "Secret Rare"}, {"id": 160, "number": "160/131", "name": "Cornerstone Mask Ogerpon ex", "type": "Grass", "section": "Secret Rare"}, {"id": 161, "number": "161/131", "name": "Umbreon ex", "type": "Darkness", "section": "Secret Rare"}, {"id": 162, "number": "162/131", "name": "Roaring Moon ex", "type": "Darkness", "section": "Secret Rare"}, {"id": 163, "number": "163/131", "name": "Pecharunt ex", "type": "Darkness", "section": "Secret Rare"}, {"id": 164, "number": "164/131", "name": "Gholdengo ex", "type": "Metal", "section": "Secret Rare"}, {"id": 165, "number": "165/131", "name": "Dragapult ex", "type": "Dragon", "section": "Secret Rare"}, {"id": 166, "number": "166/131", "name": "Raging Bolt ex", "type": "Dragon", "section": "Secret Rare"}, {"id": 167, "number": "167/131", "name": "Eevee ex", "type": "Special", "section": "Secret Rare"}, {"id": 168, "number": "168/131", "name": "Bloodmoon Ursaluna ex", "type": "Special", "section": "Secret Rare"}, {"id": 169, "number": "169/131", "name": "Terapagos ex", "type": "Special", "section": "Secret Rare"}, {"id": 170, "number": "170/131", "name": "Amarys", "type": "Special", "section": "Secret Rare"}, {"id": 171, "number": "171/131", "name": "Crispin", "type": "Special", "section": "Secret Rare"}, {"id": 172, "number": "172/131", "name": "Drayton", "type": "Special", "section": "Secret Rare"}, {"id": 173, "number": "173/131", "name": "Janine's Secret Art", "type": "Special", "section": "Secret Rare"}, {"id": 174, "number": "174/131", "name": "Kieran", "type": "Special", "section": "Secret Rare"}, {"id": 175, "number": "175/131", "name": "Lacey", "type": "Special", "section": "Secret Rare"}, {"id": 176, "number": "176/131", "name": "Iron Leaves ex", "type": "Special", "section": "Secret Rare"}, {"id": 177, "number": "177/131", "name": "Teal Mask Ogerpon ex", "type": "Grass", "section": "Secret Rare"}, {"id": 178, "number": "178/131", "name": "Walking Wake ex", "type": "Water", "section": "Secret Rare"}, {"id": 179, "number": "179/131", "name": "Pikachu ex", "type": "Lightning", "section": "Secret Rare"}, {"id": 180, "number": "180/131", "name": "Terapagos ex", "type": "Special", "section": "Secret Rare"}]}, {"id": "journey-together", "name": "Journey Together", "era": "Scarlet & Violet", "accent": "#2563eb", "cards": []}, {"id": "destined-rivals", "name": "Destined Rivals", "era": "Scarlet & Violet", "accent": "#dc2626", "cards": []}, {"id": "black-bolt", "name": "Black Bolt", "era": "Scarlet & Violet", "accent": "#111827", "cards": []}, {"id": "white-flare", "name": "White Flare", "era": "Scarlet & Violet", "accent": "#9ca3af", "cards": []}];
+let selectedSetId = localStorage.getItem('richdexSelectedSet') || 'prismatic-evolutions';
+let progress = JSON.parse(localStorage.getItem('richdexSeriesProgress') || '{}');
+let profile = JSON.parse(localStorage.getItem('richdexTrainerProfile') || 'null');
+const $ = id => document.getElementById(id);
+
+function getSet(){return sets.find(s=>s.id===selectedSetId)}
+function keyFor(cardId){return selectedSetId+':'+cardId}
+function blank(){return {regular:false,reverse:false,pokeball:false,masterball:false,favorite:false}}
+function getState(cardId){return progress[keyFor(cardId)] || blank()}
+function save(){localStorage.setItem('richdexSeriesProgress',JSON.stringify(progress));renderAll()}
+function anyOwned(s){return s.regular||s.reverse||s.pokeball||s.masterball}
+function mastered(s){return s.regular&&s.reverse&&s.pokeball&&s.masterball}
+
+function seriesStats(set){
+  if(!set.cards.length)return {started:0,finishes:0,mastered:0,total:0,pct:0,unlocked:false}
+  const states=set.cards.map(c=>progress[set.id+':'+c.id]||blank());
+  const started=states.filter(anyOwned).length;
+  const finishes=states.reduce((n,s)=>n+[s.regular,s.reverse,s.pokeball,s.masterball].filter(Boolean).length,0);
+  const masteredCount=states.filter(mastered).length;
+  const total=set.cards.length*4;
+  const pct=Math.round(finishes/total*100);
+  return {started,finishes,mastered:masteredCount,total,pct,unlocked:finishes===total}
+}
+
+
+function globalStats(){
+  let cards=0,finishes=0,badges=0;
+  sets.forEach(set=>{const s=seriesStats(set);cards+=s.started;finishes+=s.finishes;if(s.unlocked)badges++});
+  return {cards,finishes,badges};
+}
+function renderProfile(){
+  if(!profile){$('setupOverlay').classList.remove('hidden');return}
+  $('setupOverlay').classList.add('hidden');
+  const g=globalStats();
+  $('trainerName').textContent=profile.username;
+  $('trainerFavorite').textContent='Favorite Pokémon: '+(profile.pokemon||'—');
+  $('trainerType').textContent='Favorite Type: '+(profile.type||'—');
+  $('profileCards').textContent=g.cards;$('profileBadges').textContent=g.badges;$('profileLevel').textContent=Math.max(1,Math.floor(g.finishes/25)+1);
+  $('profileJoined').textContent=profile.joined||'August 2026';
+  $('settingsUsername').value=profile.username||'';$('settingsPokemon').value=profile.pokemon||'';$('settingsType').value=profile.type||'Grass';
+}
+
+function showView(name){
+  document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.view===name));
+  document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id===name));
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function selectSet(id){
+  selectedSetId=id;localStorage.setItem('richdexSelectedSet',id);renderAll();showView('collection');
+}
+
+function renderSeries(){
+  $('setGrid').innerHTML='';
+  sets.forEach(set=>{
+    const st=seriesStats(set),card=document.createElement('button');
+    card.className='set-card'+(set.id===selectedSetId?' selected':'');
+    card.style.borderTopColor=set.accent;
+    card.innerHTML=`<small>${set.era}</small><h3>${set.name}</h3>
+      <div class="set-progress"><div style="width:${st.pct}%"></div></div>
+      <small>${set.cards.length?st.pct+'% complete':'Card list coming next'}</small><br>
+      <span class="badge ${st.unlocked?'unlocked':''}">${st.unlocked?'🏆 Badge Unlocked':'🔒 Badge Locked'}</span>`;
+    card.addEventListener('click',()=>selectSet(set.id));
+    $('setGrid').appendChild(card);
+  });
+}
+
+function finishButton(cardId,key,label){
+  const s=getState(cardId),b=document.createElement('button');
+  b.className='finish'+(s[key]?' have':'');
+  b.textContent=(s[key]?'✓ ':'')+label;
+  b.addEventListener('click',()=>{const x=getState(cardId);x[key]=!x[key];progress[keyFor(cardId)]=x;save()});
+  return b;
+}
+
+function renderCollection(){
+  const set=getSet();$('collectionTitle').textContent=set.name;
+  const st=seriesStats(set);
+  $('cardsStarted').textContent=st.started;$('finishesOwned').textContent=st.finishes;$('seriesPercent').textContent=st.pct+'%';$('masteredCount').textContent=st.mastered;
+  $('cardGrid').innerHTML='';
+  if(!set.cards.length){
+    $('cardGrid').innerHTML='<div class="empty"><h3>This series is ready for card data.</h3><p>The selector and badge system are working. We can add the complete card list next.</p></div>';
+    return;
+  }
+  const q=$('search').value.trim().toLowerCase(),filter=$('statusFilter').value;
+  set.cards.filter(c=>{
+    const s=getState(c.id);
+    return(!q||c.name.toLowerCase().includes(q)||c.number.toLowerCase().includes(q))&&
+      (filter==='all'||filter==='started'&&anyOwned(s)||filter==='needed'&&!anyOwned(s)||filter==='mastered'&&mastered(s));
+  }).forEach(c=>{
+    const s=getState(c.id),card=document.createElement('article');
+    card.className='card'+(mastered(s)?' mastered':'');
+    card.innerHTML=`<div class="top"><span class="num">${c.number}</span><span>${mastered(s)?'🏆 MASTERED':''}</span></div><h3>${c.name}</h3><span class="type">${c.type}</span>`;
+    const fg=document.createElement('div');fg.className='finish-grid';
+    fg.append(finishButton(c.id,'regular','Regular'),finishButton(c.id,'reverse','Reverse Holo'),finishButton(c.id,'pokeball','Poké Ball'),finishButton(c.id,'masterball','Master Ball'));
+    card.appendChild(fg);
+    const fav=document.createElement('button');fav.className='favorite';fav.textContent=s.favorite?'★ Favorite':'☆ Favorite';
+    fav.addEventListener('click',()=>{const x=getState(c.id);x.favorite=!x.favorite;progress[keyFor(c.id)]=x;save()});
+    card.appendChild(fav);$('cardGrid').appendChild(card);
+  });
+}
+
+function renderBadges(){
+  $('badgeGrid').innerHTML='';
+  sets.forEach(set=>{
+    const st=seriesStats(set),b=document.createElement('article');
+    b.className='badge-card'+(st.unlocked?' unlocked':'');
+    b.innerHTML=`<div class="trophy">${st.unlocked?'🏆':'🔒'}</div><h3>${set.name}</h3><p>${st.unlocked?'Series Master Badge Unlocked!':set.cards.length?st.pct+'% complete':'Card list not added yet'}</p>`;
+    $('badgeGrid').appendChild(b);
+  });
+}
+
+function renderAll(){renderProfile();renderSeries();renderCollection();renderBadges()}
+document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>showView(b.dataset.view)));
+$('search').addEventListener('input',renderCollection);$('statusFilter').addEventListener('change',renderCollection);
+
+document.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>showView(b.dataset.go)));
+$('createTrainer').addEventListener('click',()=>{
+  const username=$('setupUsername').value.trim();
+  if(!username){alert('Please choose a username.');return}
+  profile={username,pokemon:$('setupPokemon').value.trim(),type:$('setupType').value,joined:'August 2026'};
+  localStorage.setItem('richdexTrainerProfile',JSON.stringify(profile));renderProfile();showView('home');
+});
+$('saveSettings').addEventListener('click',()=>{
+  const username=$('settingsUsername').value.trim();
+  if(!username){alert('Username cannot be empty.');return}
+  profile={...profile,username,pokemon:$('settingsPokemon').value.trim(),type:$('settingsType').value};
+  localStorage.setItem('richdexTrainerProfile',JSON.stringify(profile));renderProfile();showView('home');
+});
+
+renderAll();
+</script>
+</body>
+</html>
