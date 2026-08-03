@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Rich's Pokémon Collector Journal</title>
+<title>RichDex Version 2 — Prismatic Evolutions</title>
 <style>
 :root{--ink:#13213a;--paper:#f7f8fc;--blue:#2855d9;--shadow:0 10px 30px rgba(25,40,80,.12)}
 *{box-sizing:border-box}
@@ -36,6 +36,18 @@ dialog::backdrop{background:#0f172a99} .dialog{padding:25px;position:relative} .
 #ownedBtn{background:#dcfce7;color:#166534} #favBtn{background:#fff7cc;color:#92400e} .save{width:100%;background:#2855d9;color:white;margin-top:12px}
 label{display:block;font-weight:800;margin:14px 0 6px} label input,label select,label textarea{display:block;width:100%;margin-top:7px;padding:12px;border:1px solid #cbd5e1;border-radius:12px}
 @media(max-width:700px){.toolbar{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}.stats .stat:last-child{grid-column:1/-1}.grid{grid-template-columns:1fr}}
+
+.holo-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:16px}
+.holo-summary div{background:#f6f4ff;border-radius:16px;padding:13px;text-align:center}
+.holo-summary b{display:block;font-size:1.35rem}.holo-summary span{font-size:.78rem;font-weight:800;color:#64748b}
+.finish-buttons{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0}
+.finish-buttons button{padding:14px;border:2px solid #e4e7ec;border-radius:14px;background:#fff;font-weight:900}
+.finish-buttons button.active{background:#dcfce7;border-color:#22c55e;color:#166534}
+.finish-row{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:13px}
+.finish-chip{padding:7px 3px;border-radius:10px;background:#eef0f6;font-size:.68rem;font-weight:900;text-align:center}
+.finish-chip.have{background:#dcfce7;color:#166534}
+@media(max-width:700px){.holo-summary{grid-template-columns:1fr 1fr}}
+
 </style>
 </head>
 <body>
@@ -44,7 +56,7 @@ label{display:block;font-weight:800;margin:14px 0 6px} label input,label select,
 <p><b>VOLUME I</b></p>
 <h1>Rich's Pokémon Collector Journal</h1>
 <p class="sub">Prismatic Evolutions</p>
-<p>Every card has a story.</p><p style="font-size:.85rem;opacity:.9">iPad touch-safe edition</p>
+<p>Every card has a story — and every holo counts.</p><p style="font-size:.9rem;font-weight:900;background:#ffd84d;color:#392a00;display:inline-block;padding:7px 12px;border-radius:999px">VERSION 2</p>
 </header>
 
 <nav class="tabs">
@@ -57,11 +69,20 @@ label{display:block;font-weight:800;margin:14px 0 6px} label input,label select,
 <main>
 <section id="home" class="view active">
 <div class="stats">
-<div class="stat"><b id="ownedCount">0</b><span>Cards Owned</span></div>
-<div class="stat"><b id="percentDone">0%</b><span>Complete</span></div>
+<div class="stat"><b id="ownedCount">0</b><span>Cards Started</span></div>
+<div class="stat"><b id="finishCount">0</b><span>Finishes Owned</span></div>
+<div class="stat"><b id="percentDone">0%</b><span>Master Progress</span></div>
 <div class="stat"><b id="favCount">0</b><span>Favorites</span></div>
 </div>
-<div class="panel"><h2>Welcome back, Trainer Rich</h2><p>Tap a card to mark it owned and save its story.</p><div class="progress"><div id="progressBar"></div></div></div>
+<div class="panel"><h2>Welcome back, Trainer Rich</h2>
+<p>Tap a card and mark every finish you own.</p>
+<div class="progress"><div id="progressBar"></div></div>
+<div class="holo-summary">
+<div><b id="regularTotal">0</b><span>Regular</span></div>
+<div><b id="reverseTotal">0</b><span>Reverse Holo</span></div>
+<div><b id="pokeTotal">0</b><span>Poké Ball</span></div>
+<div><b id="masterTotal">0</b><span>Master Ball</span></div>
+</div></div>
 <h2>Continue your journey</h2><div class="grid" id="homeTypes"></div>
 </section>
 
@@ -69,7 +90,7 @@ label{display:block;font-weight:800;margin:14px 0 6px} label input,label select,
 <div class="toolbar">
 <input id="search" type="search" placeholder="Search Pokémon or card number">
 <select id="typeFilter"><option value="All">All types</option></select>
-<select id="statusFilter"><option value="All">All cards</option><option value="Owned">Owned</option><option value="Needed">Needed</option><option value="Favorite">Favorites</option></select>
+<select id="statusFilter"><option value="All">All cards</option><option value="Owned">Started</option><option value="Needed">Nothing owned</option><option value="Favorite">Favorites</option></select>
 </div>
 <div id="cardGrid" class="grid"></div>
 </section>
@@ -82,7 +103,14 @@ label{display:block;font-weight:800;margin:14px 0 6px} label input,label select,
 <div class="dialog">
 <button class="close" onclick="cardDialog.close()">×</button>
 <p id="dialogNumber"></p><h2 id="dialogName"></h2><span id="dialogType" class="pill"></span>
-<div class="actions"><button id="ownedBtn">Mark Owned</button><button id="favBtn">☆ Favorite</button></div>
+<h3>Which finishes do you own?</h3>
+<div class="finish-buttons">
+<button id="regularBtn" type="button">Regular</button>
+<button id="reverseBtn" type="button">Reverse Holo</button>
+<button id="pokeBtn" type="button">Poké Ball Holo</button>
+<button id="masterBtn" type="button">Master Ball Holo</button>
+</div>
+<div class="actions"><button id="favBtn" type="button">☆ Favorite</button><button id="clearBtn" type="button">Clear Card</button></div>
 <label>How did you get it?<select id="sourceSelect"><option value="">Choose one</option><option>Pulled</option><option>Bought</option><option>Traded</option><option>Gift</option></select></label>
 <label>Date added<input id="dateInput" type="date"></label>
 <label>The story behind this card<textarea id="storyInput" rows="5" placeholder="Who was with you? Where were you? What made it special?"></textarea></label>
@@ -92,229 +120,67 @@ label{display:block;font-weight:800;margin:14px 0 6px} label input,label select,
 
 <script>
 const cards = [{"id": 1, "number": "001/131", "name": "Exeggcute", "type": "Grass", "section": "Main Set"}, {"id": 2, "number": "002/131", "name": "Exeggutor", "type": "Grass", "section": "Main Set"}, {"id": 3, "number": "003/131", "name": "Pinsir", "type": "Grass", "section": "Main Set"}, {"id": 4, "number": "004/131", "name": "Budew", "type": "Grass", "section": "Main Set"}, {"id": 5, "number": "005/131", "name": "Leafeon", "type": "Grass", "section": "Main Set"}, {"id": 6, "number": "006/131", "name": "Leafeon ex", "type": "Grass", "section": "Main Set"}, {"id": 7, "number": "007/131", "name": "Cottonee", "type": "Grass", "section": "Main Set"}, {"id": 8, "number": "008/131", "name": "Whimsicott", "type": "Grass", "section": "Main Set"}, {"id": 9, "number": "009/131", "name": "Applin", "type": "Grass", "section": "Main Set"}, {"id": 10, "number": "010/131", "name": "Dipplin", "type": "Grass", "section": "Main Set"}, {"id": 11, "number": "011/131", "name": "Hydrapple ex", "type": "Grass", "section": "Main Set"}, {"id": 12, "number": "012/131", "name": "Teal Mask Ogerpon ex", "type": "Grass", "section": "Main Set"}, {"id": 13, "number": "013/131", "name": "Flareon", "type": "Fire", "section": "Main Set"}, {"id": 14, "number": "014/131", "name": "Flareon ex", "type": "Fire", "section": "Main Set"}, {"id": 15, "number": "015/131", "name": "Litleo", "type": "Fire", "section": "Main Set"}, {"id": 16, "number": "016/131", "name": "Pyroar", "type": "Fire", "section": "Main Set"}, {"id": 17, "number": "017/131", "name": "Hearthflame Mask Ogerpon ex", "type": "Grass", "section": "Main Set"}, {"id": 18, "number": "018/131", "name": "Slowpoke", "type": "Water", "section": "Main Set"}, {"id": 19, "number": "019/131", "name": "Slowking", "type": "Water", "section": "Main Set"}, {"id": 20, "number": "020/131", "name": "Goldeen", "type": "Water", "section": "Main Set"}, {"id": 21, "number": "021/131", "name": "Seaking", "type": "Water", "section": "Main Set"}, {"id": 22, "number": "022/131", "name": "Vaporeon", "type": "Water", "section": "Main Set"}, {"id": 23, "number": "023/131", "name": "Vaporeon ex", "type": "Water", "section": "Main Set"}, {"id": 24, "number": "024/131", "name": "Suicune", "type": "Water", "section": "Main Set"}, {"id": 25, "number": "025/131", "name": "Glaceon", "type": "Water", "section": "Main Set"}, {"id": 26, "number": "026/131", "name": "Glaceon ex", "type": "Water", "section": "Main Set"}, {"id": 27, "number": "027/131", "name": "Wellspring Mask Ogerpon ex", "type": "Grass", "section": "Main Set"}, {"id": 28, "number": "028/131", "name": "Pikachu ex", "type": "Lightning", "section": "Main Set"}, {"id": 29, "number": "029/131", "name": "Jolteon", "type": "Lightning", "section": "Main Set"}, {"id": 30, "number": "030/131", "name": "Jolteon ex", "type": "Lightning", "section": "Main Set"}, {"id": 31, "number": "031/131", "name": "Iron Hands ex", "type": "Lightning", "section": "Main Set"}, {"id": 32, "number": "032/131", "name": "Iron Thorns ex", "type": "Lightning", "section": "Main Set"}, {"id": 33, "number": "033/131", "name": "Espeon", "type": "Psychic", "section": "Main Set"}, {"id": 34, "number": "034/131", "name": "Espeon ex", "type": "Psychic", "section": "Main Set"}, {"id": 35, "number": "035/131", "name": "Duskull", "type": "Psychic", "section": "Main Set"}, {"id": 36, "number": "036/131", "name": "Dusclops", "type": "Colorless", "section": "Main Set"}, {"id": 37, "number": "037/131", "name": "Dusknoir", "type": "Psychic", "section": "Main Set"}, {"id": 38, "number": "038/131", "name": "Spritzee", "type": "Psychic", "section": "Main Set"}, {"id": 39, "number": "039/131", "name": "Aromatisse", "type": "Psychic", "section": "Main Set"}, {"id": 40, "number": "040/131", "name": "Sylveon", "type": "Psychic", "section": "Main Set"}, {"id": 41, "number": "041/131", "name": "Sylveon ex", "type": "Psychic", "section": "Main Set"}, {"id": 42, "number": "042/131", "name": "Scream Tail", "type": "Psychic", "section": "Main Set"}, {"id": 43, "number": "043/131", "name": "Flutter Mane", "type": "Psychic", "section": "Main Set"}, {"id": 44, "number": "044/131", "name": "Munkidori", "type": "Psychic", "section": "Main Set"}, {"id": 45, "number": "045/131", "name": "Fezandipiti", "type": "Psychic", "section": "Main Set"}, {"id": 46, "number": "046/131", "name": "Iron Boulder", "type": "Colorless", "section": "Main Set"}, {"id": 47, "number": "047/131", "name": "Larvitar", "type": "Colorless", "section": "Main Set"}, {"id": 48, "number": "048/131", "name": "Pupitar", "type": "Colorless", "section": "Main Set"}, {"id": 49, "number": "049/131", "name": "Groudon", "type": "Colorless", "section": "Main Set"}, {"id": 50, "number": "050/131", "name": "Riolu", "type": "Colorless", "section": "Main Set"}, {"id": 51, "number": "051/131", "name": "Lucario ex", "type": "Colorless", "section": "Main Set"}, {"id": 52, "number": "052/131", "name": "Hippopotas", "type": "Colorless", "section": "Main Set"}, {"id": 53, "number": "053/131", "name": "Hippowdon", "type": "Colorless", "section": "Main Set"}, {"id": 54, "number": "054/131", "name": "Bloodmoon Ursaluna", "type": "Colorless", "section": "Main Set"}, {"id": 55, "number": "055/131", "name": "Great Tusk", "type": "Colorless", "section": "Main Set"}, {"id": 56, "number": "056/131", "name": "Sandy Shocks ex", "type": "Colorless", "section": "Main Set"}, {"id": 57, "number": "057/131", "name": "Okidogi", "type": "Darkness", "section": "Main Set"}, {"id": 58, "number": "058/131", "name": "Cornerstone Mask Ogerpon ex", "type": "Grass", "section": "Main Set"}, {"id": 59, "number": "059/131", "name": "Umbreon", "type": "Darkness", "section": "Main Set"}, {"id": 60, "number": "060/131", "name": "Umbreon ex", "type": "Darkness", "section": "Main Set"}, {"id": 61, "number": "061/131", "name": "Sneasel", "type": "Darkness", "section": "Main Set"}, {"id": 62, "number": "062/131", "name": "Houndour", "type": "Darkness", "section": "Main Set"}, {"id": 63, "number": "063/131", "name": "Houndoom", "type": "Darkness", "section": "Main Set"}, {"id": 64, "number": "064/131", "name": "Tyranitar ex", "type": "Darkness", "section": "Main Set"}, {"id": 65, "number": "065/131", "name": "Roaring Moon", "type": "Darkness", "section": "Main Set"}, {"id": 66, "number": "066/131", "name": "Bronzor", "type": "Metal", "section": "Main Set"}, {"id": 67, "number": "067/131", "name": "Bronzong", "type": "Metal", "section": "Main Set"}, {"id": 68, "number": "068/131", "name": "Heatran", "type": "Fire", "section": "Main Set"}, {"id": 69, "number": "069/131", "name": "Duraludon", "type": "Metal", "section": "Main Set"}, {"id": 70, "number": "070/131", "name": "Archaludon", "type": "Metal", "section": "Main Set"}, {"id": 71, "number": "071/131", "name": "Dreepy", "type": "Dragon", "section": "Main Set"}, {"id": 72, "number": "072/131", "name": "Drakloak", "type": "Dragon", "section": "Main Set"}, {"id": 73, "number": "073/131", "name": "Dragapult ex", "type": "Dragon", "section": "Main Set"}, {"id": 74, "number": "074/131", "name": "Eevee", "type": "Colorless", "section": "Main Set"}, {"id": 75, "number": "075/131", "name": "Eevee ex", "type": "Colorless", "section": "Main Set"}, {"id": 76, "number": "076/131", "name": "Snorlax ex", "type": "Colorless", "section": "Main Set"}, {"id": 77, "number": "077/131", "name": "Hoothoot", "type": "Colorless", "section": "Main Set"}, {"id": 78, "number": "078/131", "name": "Noctowl", "type": "Colorless", "section": "Main Set"}, {"id": 79, "number": "079/131", "name": "Dunsparce", "type": "Colorless", "section": "Main Set"}, {"id": 80, "number": "080/131", "name": "Dudunsparce", "type": "Colorless", "section": "Main Set"}, {"id": 81, "number": "081/131", "name": "Miltank", "type": "Colorless", "section": "Main Set"}, {"id": 82, "number": "082/131", "name": "Lugia ex", "type": "Colorless", "section": "Main Set"}, {"id": 83, "number": "083/131", "name": "Buneary", "type": "Colorless", "section": "Main Set"}, {"id": 84, "number": "084/131", "name": "Lopunny", "type": "Colorless", "section": "Main Set"}, {"id": 85, "number": "085/131", "name": "Fan Rotom", "type": "Colorless", "section": "Main Set"}, {"id": 86, "number": "086/131", "name": "Regigigas", "type": "Colorless", "section": "Main Set"}, {"id": 87, "number": "087/131", "name": "Shaymin", "type": "Colorless", "section": "Main Set"}, {"id": 88, "number": "088/131", "name": "Furfrou", "type": "Colorless", "section": "Main Set"}, {"id": 89, "number": "089/131", "name": "Hawlucha", "type": "Colorless", "section": "Main Set"}, {"id": 90, "number": "090/131", "name": "Noibat", "type": "Dragon", "section": "Main Set"}, {"id": 91, "number": "091/131", "name": "Noivern ex", "type": "Dragon", "section": "Main Set"}, {"id": 92, "number": "092/131", "name": "Terapagos ex", "type": "Colorless", "section": "Main Set"}, {"id": 93, "number": "093/131", "name": "Amarys", "type": "Colorless", "section": "Main Set"}, {"id": 94, "number": "094/131", "name": "Area Zero Underdepths", "type": "Colorless", "section": "Main Set"}, {"id": 95, "number": "095/131", "name": "Binding Mochi", "type": "Colorless", "section": "Main Set"}, {"id": 96, "number": "096/131", "name": "Black Belt's Training", "type": "Colorless", "section": "Main Set"}, {"id": 97, "number": "097/131", "name": "Black Belt's Training", "type": "Colorless", "section": "Main Set"}, {"id": 98, "number": "098/131", "name": "Black Belt's Training", "type": "Colorless", "section": "Main Set"}, {"id": 99, "number": "099/131", "name": "Black Belt's Training", "type": "Colorless", "section": "Main Set"}, {"id": 100, "number": "100/131", "name": "Briar", "type": "Colorless", "section": "Main Set"}, {"id": 101, "number": "101/131", "name": "Buddy-Buddy Poffin", "type": "Colorless", "section": "Main Set"}, {"id": 102, "number": "102/131", "name": "Bug Catching Set", "type": "Colorless", "section": "Main Set"}, {"id": 103, "number": "103/131", "name": "Carmine", "type": "Colorless", "section": "Main Set"}, {"id": 104, "number": "104/131", "name": "Ciphermaniac's Codebreaking", "type": "Colorless", "section": "Main Set"}, {"id": 105, "number": "105/131", "name": "Crispin", "type": "Colorless", "section": "Main Set"}, {"id": 106, "number": "106/131", "name": "Earthen Vessel", "type": "Colorless", "section": "Main Set"}, {"id": 107, "number": "107/131", "name": "Explorer's Guidance", "type": "Colorless", "section": "Main Set"}, {"id": 108, "number": "108/131", "name": "Festival Grounds", "type": "Colorless", "section": "Main Set"}, {"id": 109, "number": "109/131", "name": "Friends in Paldea", "type": "Colorless", "section": "Main Set"}, {"id": 110, "number": "110/131", "name": "Glass Trumpet", "type": "Colorless", "section": "Main Set"}, {"id": 111, "number": "111/131", "name": "Haban Berry", "type": "Colorless", "section": "Main Set"}, {"id": 112, "number": "112/131", "name": "Janine's Secret Art", "type": "Colorless", "section": "Main Set"}, {"id": 113, "number": "113/131", "name": "Kieran", "type": "Colorless", "section": "Main Set"}, {"id": 114, "number": "114/131", "name": "Lacey", "type": "Colorless", "section": "Main Set"}, {"id": 115, "number": "115/131", "name": "Larry's Skill", "type": "Colorless", "section": "Main Set"}, {"id": 116, "number": "116/131", "name": "Max Rod", "type": "Colorless", "section": "Main Set"}, {"id": 117, "number": "117/131", "name": "Maximum Belt", "type": "Colorless", "section": "Main Set"}, {"id": 118, "number": "118/131", "name": "Ogre's Mask", "type": "Colorless", "section": "Main Set"}, {"id": 119, "number": "119/131", "name": "Prime Catcher", "type": "Colorless", "section": "Main Set"}, {"id": 120, "number": "120/131", "name": "Professor Sada's Vitality", "type": "Colorless", "section": "Main Set"}, {"id": 121, "number": "121/131", "name": "Professor Turo's Scenario", "type": "Colorless", "section": "Main Set"}, {"id": 122, "number": "122/131", "name": "Professor's Research [Professor Oak]", "type": "Colorless", "section": "Main Set"}, {"id": 123, "number": "123/131", "name": "Professor's Research [Professor Elm]", "type": "Colorless", "section": "Main Set"}, {"id": 124, "number": "124/131", "name": "Professor's Research [Professor Rowan]", "type": "Colorless", "section": "Main Set"}, {"id": 125, "number": "125/131", "name": "Professor's Research [Professor Sycamore]", "type": "Colorless", "section": "Main Set"}, {"id": 126, "number": "126/131", "name": "Rescue Board", "type": "Colorless", "section": "Main Set"}, {"id": 127, "number": "127/131", "name": "Roto-Stick", "type": "Colorless", "section": "Main Set"}, {"id": 128, "number": "128/131", "name": "Scoop Up Cyclone", "type": "Colorless", "section": "Main Set"}, {"id": 129, "number": "129/131", "name": "Sparkling Crystal", "type": "Colorless", "section": "Main Set"}, {"id": 130, "number": "130/131", "name": "Techno Radar", "type": "Colorless", "section": "Main Set"}, {"id": 131, "number": "131/131", "name": "Treasure Tracker", "type": "Colorless", "section": "Main Set"}, {"id": 132, "number": "132/131", "name": "Amarys", "type": "Special", "section": "Secret Rare"}, {"id": 133, "number": "133/131", "name": "Atticus", "type": "Special", "section": "Secret Rare"}, {"id": 134, "number": "134/131", "name": "Atticus", "type": "Special", "section": "Secret Rare"}, {"id": 135, "number": "135/131", "name": "Brassius", "type": "Special", "section": "Secret Rare"}, {"id": 136, "number": "136/131", "name": "Eri", "type": "Special", "section": "Secret Rare"}, {"id": 137, "number": "137/131", "name": "Friends in Paldea", "type": "Special", "section": "Secret Rare"}, {"id": 138, "number": "138/131", "name": "Giacomo", "type": "Special", "section": "Secret Rare"}, {"id": 139, "number": "139/131", "name": "Larry's Skill", "type": "Special", "section": "Secret Rare"}, {"id": 140, "number": "140/131", "name": "Mela", "type": "Special", "section": "Secret Rare"}, {"id": 141, "number": "141/131", "name": "Ortega", "type": "Special", "section": "Secret Rare"}, {"id": 142, "number": "142/131", "name": "Raifort", "type": "Special", "section": "Secret Rare"}, {"id": 143, "number": "143/131", "name": "Tyme", "type": "Special", "section": "Secret Rare"}, {"id": 144, "number": "144/131", "name": "Leafeon ex", "type": "Grass", "section": "Secret Rare"}, {"id": 145, "number": "145/131", "name": "Teal Mask Ogerpon ex", "type": "Grass", "section": "Secret Rare"}, {"id": 146, "number": "146/131", "name": "Flareon ex", "type": "Fire", "section": "Secret Rare"}, {"id": 147, "number": "147/131", "name": "Ceruledge ex", "type": "Fire", "section": "Secret Rare"}, {"id": 148, "number": "148/131", "name": "Hearthflame Mask Ogerpon ex", "type": "Grass", "section": "Secret Rare"}, {"id": 149, "number": "149/131", "name": "Vaporeon ex", "type": "Water", "section": "Secret Rare"}, {"id": 150, "number": "150/131", "name": "Glaceon ex", "type": "Water", "section": "Secret Rare"}, {"id": 151, "number": "151/131", "name": "Palafin ex", "type": "Water", "section": "Secret Rare"}, {"id": 152, "number": "152/131", "name": "Wellspring Mask Ogerpon ex", "type": "Grass", "section": "Secret Rare"}, {"id": 153, "number": "153/131", "name": "Jolteon ex", "type": "Lightning", "section": "Secret Rare"}, {"id": 154, "number": "154/131", "name": "Iron Hands ex", "type": "Lightning", "section": "Secret Rare"}, {"id": 155, "number": "155/131", "name": "Espeon ex", "type": "Psychic", "section": "Secret Rare"}, {"id": 156, "number": "156/131", "name": "Sylveon ex", "type": "Psychic", "section": "Secret Rare"}, {"id": 157, "number": "157/131", "name": "Iron Valiant ex", "type": "Special", "section": "Secret Rare"}, {"id": 158, "number": "158/131", "name": "Iron Crown ex", "type": "Special", "section": "Secret Rare"}, {"id": 159, "number": "159/131", "name": "Sandy Shocks ex", "type": "Special", "section": "Secret Rare"}, {"id": 160, "number": "160/131", "name": "Cornerstone Mask Ogerpon ex", "type": "Grass", "section": "Secret Rare"}, {"id": 161, "number": "161/131", "name": "Umbreon ex", "type": "Darkness", "section": "Secret Rare"}, {"id": 162, "number": "162/131", "name": "Roaring Moon ex", "type": "Darkness", "section": "Secret Rare"}, {"id": 163, "number": "163/131", "name": "Pecharunt ex", "type": "Darkness", "section": "Secret Rare"}, {"id": 164, "number": "164/131", "name": "Gholdengo ex", "type": "Metal", "section": "Secret Rare"}, {"id": 165, "number": "165/131", "name": "Dragapult ex", "type": "Dragon", "section": "Secret Rare"}, {"id": 166, "number": "166/131", "name": "Raging Bolt ex", "type": "Dragon", "section": "Secret Rare"}, {"id": 167, "number": "167/131", "name": "Eevee ex", "type": "Special", "section": "Secret Rare"}, {"id": 168, "number": "168/131", "name": "Bloodmoon Ursaluna ex", "type": "Special", "section": "Secret Rare"}, {"id": 169, "number": "169/131", "name": "Terapagos ex", "type": "Special", "section": "Secret Rare"}, {"id": 170, "number": "170/131", "name": "Amarys", "type": "Special", "section": "Secret Rare"}, {"id": 171, "number": "171/131", "name": "Crispin", "type": "Special", "section": "Secret Rare"}, {"id": 172, "number": "172/131", "name": "Drayton", "type": "Special", "section": "Secret Rare"}, {"id": 173, "number": "173/131", "name": "Janine's Secret Art", "type": "Special", "section": "Secret Rare"}, {"id": 174, "number": "174/131", "name": "Kieran", "type": "Special", "section": "Secret Rare"}, {"id": 175, "number": "175/131", "name": "Lacey", "type": "Special", "section": "Secret Rare"}, {"id": 176, "number": "176/131", "name": "Iron Leaves ex", "type": "Special", "section": "Secret Rare"}, {"id": 177, "number": "177/131", "name": "Teal Mask Ogerpon ex", "type": "Grass", "section": "Secret Rare"}, {"id": 178, "number": "178/131", "name": "Walking Wake ex", "type": "Water", "section": "Secret Rare"}, {"id": 179, "number": "179/131", "name": "Pikachu ex", "type": "Lightning", "section": "Secret Rare"}, {"id": 180, "number": "180/131", "name": "Terapagos ex", "type": "Special", "section": "Secret Rare"}];
-let state = JSON.parse(localStorage.getItem('richPokemonJournal') || '{}');
+let state = JSON.parse(localStorage.getItem('richPokemonJournalV2') || '{}');
+let oldState = JSON.parse(localStorage.getItem('richPokemonJournal') || '{}');
 let currentId = null;
+const $ = id => document.getElementById(id);
+const typeColors = {Grass:'#2f9e44',Fire:'#e8590c',Water:'#1971c2',Lightning:'#f0b429',Psychic:'#9c36b5',Darkness:'#343a40',Metal:'#748ffc',Dragon:'#f08c00',Colorless:'#868e96',Special:'#7c3aed'};
 
-const $ = (id) => document.getElementById(id);
-const typeColors = {
-  Grass:'#2f9e44', Fire:'#e8590c', Water:'#1971c2', Lightning:'#f0b429',
-  Psychic:'#9c36b5', Darkness:'#343a40', Metal:'#748ffc',
-  Dragon:'#f08c00', Colorless:'#868e96', Special:'#7c3aed'
-};
-
-function getCardState(id) {
-  return state[id] || {owned:false, favorite:false, source:'', date:'', story:''};
+function blankState(){return {regular:false,reverse:false,pokeball:false,masterball:false,favorite:false,source:'',date:'',story:''}}
+function getCardState(id){
+  if(state[id]) return state[id];
+  const s=blankState();
+  if(oldState[id]){s.regular=!!oldState[id].owned;s.favorite=!!oldState[id].favorite;s.source=oldState[id].source||'';s.date=oldState[id].date||'';s.story=oldState[id].story||'';}
+  return s;
 }
+function anyOwned(s){return s.regular||s.reverse||s.pokeball||s.masterball}
+function saveState(){localStorage.setItem('richPokemonJournalV2',JSON.stringify(state));renderAll()}
+function showView(name){document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.view===name));document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id===name));window.scrollTo({top:0,behavior:'smooth'})}
 
-function saveState() {
-  localStorage.setItem('richPokemonJournal', JSON.stringify(state));
+function setup(){
+  document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>showView(b.dataset.view)));
+  [...new Set(cards.map(c=>c.type))].sort().forEach(t=>{const o=document.createElement('option');o.value=t;o.textContent=t;$('typeFilter').appendChild(o)});
+  ['search','typeFilter','statusFilter'].forEach(id=>{$(id).addEventListener('input',renderCollection);$(id).addEventListener('change',renderCollection)});
+  document.querySelector('.close').addEventListener('click',closeDialog);
+  [['regularBtn','regular'],['reverseBtn','reverse'],['pokeBtn','pokeball'],['masterBtn','masterball']].forEach(([b,k])=>$(b).addEventListener('click',()=>toggleFinish(k)));
+  $('favBtn').addEventListener('click',toggleFavorite);
+  $('clearBtn').addEventListener('click',clearCard);
+  $('saveCard').addEventListener('click',saveCard);
   renderAll();
 }
-
-function showView(viewName) {
-  document.querySelectorAll('.tab').forEach((button) => {
-    button.classList.toggle('active', button.dataset.view === viewName);
-  });
-  document.querySelectorAll('.view').forEach((view) => {
-    view.classList.toggle('active', view.id === viewName);
-  });
-  window.scrollTo({top: 0, behavior: 'smooth'});
+function renderStats(){
+  const ss=cards.map(c=>getCardState(c.id));
+  const started=ss.filter(anyOwned).length, fav=ss.filter(s=>s.favorite).length;
+  const regular=ss.filter(s=>s.regular).length, reverse=ss.filter(s=>s.reverse).length, poke=ss.filter(s=>s.pokeball).length, master=ss.filter(s=>s.masterball).length;
+  const finishes=regular+reverse+poke+master, pct=Math.round(finishes/(cards.length*4)*100)||0;
+  $('ownedCount').textContent=started;$('finishCount').textContent=finishes;$('percentDone').textContent=pct+'%';$('favCount').textContent=fav;$('progressBar').style.width=pct+'%';
+  $('regularTotal').textContent=regular;$('reverseTotal').textContent=reverse;$('pokeTotal').textContent=poke;$('masterTotal').textContent=master;
 }
-
-function setupNavigation() {
-  document.querySelectorAll('.tab').forEach((button) => {
-    button.addEventListener('click', () => showView(button.dataset.view));
-    button.addEventListener('touchend', (event) => {
-      event.preventDefault();
-      showView(button.dataset.view);
-    }, {passive:false});
-  });
+function chip(label,have){return `<div class="finish-chip ${have?'have':''}">${have?'✓ ':''}${label}</div>`}
+function createCardElement(c){
+  const s=getCardState(c.id),el=document.createElement('article');el.className='card'+(anyOwned(s)?' owned':'');el.tabIndex=0;
+  el.innerHTML=`<div class="top"><span class="num">${c.number}</span><span class="star">${s.favorite?'★':'☆'}</span></div><h3>${c.name}</h3><span class="pill">${c.type}</span><div class="finish-row">${chip('REG',s.regular)}${chip('REV',s.reverse)}${chip('POKÉ',s.pokeball)}${chip('MASTER',s.masterball)}</div>`;
+  el.addEventListener('click',()=>openCard(c.id));return el;
 }
-
-function setupFilters() {
-  const typeFilter = $('typeFilter');
-  [...new Set(cards.map((card) => card.type))].sort().forEach((type) => {
-    const option = document.createElement('option');
-    option.value = type;
-    option.textContent = type;
-    typeFilter.appendChild(option);
-  });
-  ['search','typeFilter','statusFilter'].forEach((id) => {
-    $(id).addEventListener('input', renderCollection);
-    $(id).addEventListener('change', renderCollection);
-  });
+function renderList(container,list,msg){container.innerHTML='';if(!list.length){container.innerHTML=`<p>${msg}</p>`;return}list.forEach(c=>container.appendChild(createCardElement(c)))}
+function renderCollection(){
+  const q=$('search').value.trim().toLowerCase(),t=$('typeFilter').value,st=$('statusFilter').value;
+  const list=cards.filter(c=>{const s=getCardState(c.id);return(!q||c.name.toLowerCase().includes(q)||c.number.includes(q))&&(t==='All'||c.type===t)&&(st==='All'||st==='Owned'&&anyOwned(s)||st==='Needed'&&!anyOwned(s)||st==='Favorite'&&s.favorite)});
+  renderList($('cardGrid'),list,'No cards match that search.');
 }
+function makeChapter(type){const group=cards.filter(c=>c.type===type),count=group.filter(c=>anyOwned(getCardState(c.id))).length,b=document.createElement('button');b.className='chapter';b.style.background=`linear-gradient(135deg,${typeColors[type]||'#555'},#1118)`;b.innerHTML=`<strong>${type} Type</strong><span>${count} of ${group.length} started</span>`;b.addEventListener('click',()=>{showView('collection');$('typeFilter').value=type;renderCollection()});return b}
+function renderTypes(){const types=[...new Set(cards.map(c=>c.type))].sort();[$('typeGrid'),$('homeTypes')].forEach(x=>{x.innerHTML='';types.forEach(t=>x.appendChild(makeChapter(t)))})}
+function renderFavorites(){renderList($('favoriteGrid'),cards.filter(c=>getCardState(c.id).favorite),'No favorites yet.')} 
+function renderAll(){renderStats();renderCollection();renderTypes();renderFavorites()}
 
-function renderStats() {
-  const owned = cards.filter((card) => getCardState(card.id).owned).length;
-  const favorites = cards.filter((card) => getCardState(card.id).favorite).length;
-  const percent = Math.round((owned / cards.length) * 100) || 0;
-  $('ownedCount').textContent = owned;
-  $('favCount').textContent = favorites;
-  $('percentDone').textContent = percent + '%';
-  $('progressBar').style.width = percent + '%';
-}
-
-function createCardElement(card) {
-  const cardState = getCardState(card.id);
-  const article = document.createElement('article');
-  article.className = 'card' + (cardState.owned ? ' owned' : '');
-  article.setAttribute('role', 'button');
-  article.setAttribute('tabindex', '0');
-  article.innerHTML = `
-    <div class="top">
-      <span class="num">${card.number}</span>
-      <span class="star">${cardState.favorite ? '★' : '☆'}</span>
-    </div>
-    <h3>${card.name}</h3>
-    <span class="pill">${card.type}</span>
-    <div class="status">${cardState.owned ? '✓ Owned' : '○ Needed'}</div>
-  `;
-  article.addEventListener('click', () => openCard(card.id));
-  article.addEventListener('keydown', (event) => {
-    if (event.key === 'Enter' || event.key === ' ') openCard(card.id);
-  });
-  return article;
-}
-
-function renderCardList(container, cardList, emptyText) {
-  container.innerHTML = '';
-  if (!cardList.length) {
-    const message = document.createElement('p');
-    message.textContent = emptyText;
-    container.appendChild(message);
-    return;
-  }
-  cardList.forEach((card) => container.appendChild(createCardElement(card)));
-}
-
-function renderCollection() {
-  const query = $('search').value.trim().toLowerCase();
-  const selectedType = $('typeFilter').value;
-  const selectedStatus = $('statusFilter').value;
-
-  const filtered = cards.filter((card) => {
-    const cardState = getCardState(card.id);
-    const matchesQuery = !query ||
-      card.name.toLowerCase().includes(query) ||
-      card.number.toLowerCase().includes(query);
-    const matchesType = selectedType === 'All' || card.type === selectedType;
-    const matchesStatus =
-      selectedStatus === 'All' ||
-      (selectedStatus === 'Owned' && cardState.owned) ||
-      (selectedStatus === 'Needed' && !cardState.owned) ||
-      (selectedStatus === 'Favorite' && cardState.favorite);
-    return matchesQuery && matchesType && matchesStatus;
-  });
-
-  renderCardList($('cardGrid'), filtered, 'No cards match that search.');
-}
-
-function createChapterButton(type) {
-  const group = cards.filter((card) => card.type === type);
-  const owned = group.filter((card) => getCardState(card.id).owned).length;
-  const button = document.createElement('button');
-  button.type = 'button';
-  button.className = 'chapter';
-  button.style.background = `linear-gradient(135deg, ${typeColors[type] || '#555'}, #1118)`;
-  button.innerHTML = `<strong>${type} Type</strong><span>${owned} of ${group.length} collected</span>`;
-  button.addEventListener('click', () => {
-    showView('collection');
-    $('typeFilter').value = type;
-    renderCollection();
-  });
-  return button;
-}
-
-function renderTypes() {
-  const types = [...new Set(cards.map((card) => card.type))].sort();
-  [$('typeGrid'), $('homeTypes')].forEach((container) => {
-    container.innerHTML = '';
-    types.forEach((type) => container.appendChild(createChapterButton(type)));
-  });
-}
-
-function renderFavorites() {
-  const favorites = cards.filter((card) => getCardState(card.id).favorite);
-  renderCardList($('favoriteGrid'), favorites, 'No favorites yet. Tap a card and add a star.');
-}
-
-function openCard(id) {
-  currentId = id;
-  const card = cards.find((item) => item.id === id);
-  const cardState = getCardState(id);
-
-  $('dialogNumber').textContent = card.number;
-  $('dialogName').textContent = card.name;
-  $('dialogType').textContent = card.type;
-  $('dialogType').style.background = typeColors[card.type] || '#ddd';
-  $('dialogType').style.color = '#fff';
-  $('ownedBtn').textContent = cardState.owned ? '✓ Owned' : 'Mark Owned';
-  $('favBtn').textContent = cardState.favorite ? '★ Favorite' : '☆ Favorite';
-  $('sourceSelect').value = cardState.source || '';
-  $('dateInput').value = cardState.date || '';
-  $('storyInput').value = cardState.story || '';
-
-  const dialog = $('cardDialog');
-  if (typeof dialog.showModal === 'function') {
-    dialog.showModal();
-  } else {
-    dialog.setAttribute('open', 'open');
-  }
-}
-
-function closeDialog() {
-  const dialog = $('cardDialog');
-  if (typeof dialog.close === 'function') {
-    dialog.close();
-  } else {
-    dialog.removeAttribute('open');
-  }
-}
-
-function setupCardDialog() {
-  document.querySelector('.close').addEventListener('click', closeDialog);
-
-  $('ownedBtn').addEventListener('click', () => {
-    const cardState = getCardState(currentId);
-    cardState.owned = !cardState.owned;
-    state[currentId] = cardState;
-    $('ownedBtn').textContent = cardState.owned ? '✓ Owned' : 'Mark Owned';
-  });
-
-  $('favBtn').addEventListener('click', () => {
-    const cardState = getCardState(currentId);
-    cardState.favorite = !cardState.favorite;
-    state[currentId] = cardState;
-    $('favBtn').textContent = cardState.favorite ? '★ Favorite' : '☆ Favorite';
-  });
-
-  $('saveCard').addEventListener('click', () => {
-    const cardState = getCardState(currentId);
-    cardState.source = $('sourceSelect').value;
-    cardState.date = $('dateInput').value;
-    cardState.story = $('storyInput').value;
-    state[currentId] = cardState;
-    saveState();
-    closeDialog();
-  });
-}
-
-function renderAll() {
-  renderStats();
-  renderCollection();
-  renderTypes();
-  renderFavorites();
-}
-
-function startApp() {
-  setupNavigation();
-  setupFilters();
-  setupCardDialog();
-  renderAll();
-}
-
-document.addEventListener('DOMContentLoaded', startApp);
+function refreshDialog(){const s=getCardState(currentId);[['regularBtn','regular'],['reverseBtn','reverse'],['pokeBtn','pokeball'],['masterBtn','masterball']].forEach(([b,k])=>$(b).classList.toggle('active',!!s[k]));$('favBtn').textContent=s.favorite?'★ Favorite':'☆ Favorite'}
+function openCard(id){currentId=id;const c=cards.find(x=>x.id===id),s=getCardState(id);$('dialogNumber').textContent=c.number;$('dialogName').textContent=c.name;$('dialogType').textContent=c.type;$('dialogType').style.background=typeColors[c.type]||'#ddd';$('dialogType').style.color='#fff';$('sourceSelect').value=s.source||'';$('dateInput').value=s.date||'';$('storyInput').value=s.story||'';refreshDialog();$('cardDialog').showModal()}
+function toggleFinish(key){const s=getCardState(currentId);s[key]=!s[key];state[currentId]=s;refreshDialog()}
+function toggleFavorite(){const s=getCardState(currentId);s.favorite=!s.favorite;state[currentId]=s;refreshDialog()}
+function clearCard(){state[currentId]=blankState();$('sourceSelect').value='';$('dateInput').value='';$('storyInput').value='';refreshDialog()}
+function saveCard(){const s=getCardState(currentId);s.source=$('sourceSelect').value;s.date=$('dateInput').value;s.story=$('storyInput').value;state[currentId]=s;saveState();closeDialog()}
+function closeDialog(){const d=$('cardDialog');if(d.open)d.close()}
+document.addEventListener('DOMContentLoaded',setup);
 </script>
 </body>
 </html>
